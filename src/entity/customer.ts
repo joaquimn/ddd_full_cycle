@@ -33,16 +33,13 @@ export default class Customer {
     // if it is not valid, it should throw an error - based on the business rules
 
     validate() {
-        if(this._name.length ===0){
-            throw new Error("Name is required");
-        }
-
         if(this._id.length === 0){
             throw new Error("Id is required");
         }
-
-        if(this._address === undefined){
-            throw new Error("Address is required");
+        
+        if(this._name.length === 0){
+            
+            throw new Error("Name is required");
         }
     }
 
@@ -51,6 +48,9 @@ export default class Customer {
         this.validate();
     }
 
+    isActive():boolean {
+        return this._active;
+    }
 
     activate() {
         if(this._address === undefined){
@@ -66,6 +66,10 @@ export default class Customer {
 
     set address(address: Address) {
         this._address = address;
+    }
+
+    get name() {
+        return this._name;
     }
 
 }
