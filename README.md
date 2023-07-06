@@ -12,4 +12,5 @@ npm i -D jest @types/jest ts-node --save-dev
 npm i -D @swc/jest @swc/cli @swc/core
 npm install --save-dev ts-jest
 npm install --save-dev @jest/globals
+npm i uuid @types/uuid
 

@@ -26,7 +26,6 @@ export default class OrderItem {
 
     orderItemTotal(): number {
         return this._price * this._quantity;
-        this.validate();
     }
 
     validate() {
