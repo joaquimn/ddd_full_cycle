@@ -1,0 +1,6 @@
+the infrastucre folder will contain the adapters that will be based on 
+the interfaces created in the repository folder to connect the appliction
+with external components, such as DB, email-services and so on.
+the goal is to stablish a contract between our appliction and and other services
+in case a replacement needs to happen in the future it'll be a matter to replace
+the adapter only.
