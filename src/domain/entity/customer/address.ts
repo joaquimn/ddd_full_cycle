@@ -52,6 +52,4 @@ export default class Address{
     get zip(){
         return this._zip;
     }
-
-
 }

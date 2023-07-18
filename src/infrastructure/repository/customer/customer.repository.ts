@@ -11,7 +11,7 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
         await CustomerModel.create({
             id: entity.id,
             name: entity.name,
-            street: entity.address.street,
+            street: entity.address.street, 
             number: entity.address.number,
             zipcode: entity.address.zip,
             city: entity.address.city,
@@ -34,28 +34,49 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
     }
 
     async find(id: string): Promise<Customer> {
+
+        let customerModel;
         
-      const customerModel = await CustomerModel.findOne({ where: { id: id } });
+        try {
+            customerModel = await CustomerModel.findOne({ where: { id },rejectOnEmpty: true });
+        } catch (error) {
+            throw new Error("Customer not found");
+        }
 
       const customer = new Customer(customerModel.id, customerModel.name);
-      const address = new Address(customerModel.street, customerModel.number, customerModel.zipcode, customerModel.city);
+      const address = new Address(customerModel.street, customerModel.number, customerModel.city, customerModel.zipcode);
+      customer.changeAddress(address);
+      customer.addRewardPoints(customerModel.rewardPoints);
+      
+      if(customerModel.active){
+            customer.activate();
+      }
 
-/*
-      const customer = new Customer("123", "John");
-      const address = new Address("rua", 123, "winnipeg", "r2j2l8");
-      customer.address = address;
-*/
-      return new Product(productModel.id, productModel.name, productModel.price);
-        
+      return customer;        
     }
 
-    async findAll(): Promise<Product[]> {
-        
-        const productModels = await ProductModel.findAll();
-        const products = productModels.map(productModel => new Product(productModel.id, productModel.name, productModel.price));
-        return products;
-    }
+    async findAll(): Promise<Customer[]> {
+        const customerModels = await CustomerModel.findAll();
+    
+        const customers = customerModels.map((customerModels) => {
+          let customer = new Customer(customerModels.id, customerModels.name);
+          customer.addRewardPoints(customerModels.rewardPoints);
+          const address = new Address(
+            customerModels.street,
+            customerModels.number,
+            customerModels.city,
+            customerModels.zipcode
+          );
+          customer.changeAddress(address);
+          if (customerModels.active) {
+            customer.activate();
+          }
+          return customer;
+        });
+    
+        return customers;
+      }
+}
 
 
     
-}

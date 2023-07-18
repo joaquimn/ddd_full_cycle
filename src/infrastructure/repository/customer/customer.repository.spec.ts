@@ -1,8 +1,8 @@
 import { Sequelize } from "sequelize-typescript";
-import ProductModel from "../../db/sequelize/model/product.model";
-import Product from "../../../domain/entity/product/product";
-import ProductRepository from "../product/product.repository";
 import CustomerModel from "../../db/sequelize/model/customer.model";
+import CustomerRepository from "./customer.repository";
+import Customer from "../../../domain/entity/customer/customer";
+import Address from "../../../domain/entity/customer/address";
 
 describe('Customer Repository test', () => {
 
@@ -25,82 +25,102 @@ describe('Customer Repository test', () => {
         await sequelize.close();
     }); 
 
+    it("should create a customer", async () => {
+        const customerRepository = new CustomerRepository();
+        const customer = new Customer("123", "Customer 1");
+        const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
+        customer.address = address;
+        await customerRepository.create(customer);
+    
+        const customerModel = await CustomerModel.findOne({ where: { id: "123" } });
+    
+        expect(customerModel.toJSON()).toStrictEqual({
+          id: "123",
+          name: customer.name,
+          active: customer.isActive(),
+          rewardPoints: customer.rewardPoints,
+          street: address.street,
+          number: address.number,
+          zipcode: address.zip,
+          city: address.city,
+        });
+      });
+
     it('should create a customer', async () => {
 
         const customerRepository = new CustomerRepository();
-        const product = new Product('1', 'Product 1', 10);
 
-        await productRepository.create(product);
+        const customer = new Customer('1', 'John');
+        const address = new Address('street1', 123, '456', 'city1');
+        customer.address = address;
+        
+        await customerRepository.create(customer);
 
-        const productModel = await ProductModel.findOne({ where: { id: '1' } });
+        customer.changeName('Customer 2');
+           
+        await customerRepository.update(customer);
 
-        expect(productModel.toJSON()).toStrictEqual({ 
+        const updatedCustomer = await CustomerModel.findOne({ where: { id: '1' } });
+        expect(updatedCustomer.toJSON()).toStrictEqual({ 
 
             id: '1',
-            name: 'Product 1',
-            price: 10
+            name: customer.name,
+            active: customer.isActive(),
+            rewardPoints: customer.rewardPoints,
+            street: customer.address.street,
+            number: customer.address.number,
+            zipcode: customer.address.zip,
+            city: customer.address.city
         })
     });
 
-    it('should update a product', async () => {
-            
-            const productRepository = new ProductRepository();
-            const product = new Product('1', 'Product 1', 10);
-    
-            await productRepository.create(product);
-    
-            product.changeName('Product 2');
-            product.changePrice(20);
-    
-            await productRepository.update(product);
-    
-            const productModel = await ProductModel.findOne({ where: { id: '1' } });
-    
-            expect(productModel.toJSON()).toStrictEqual({ 
-    
-                id: '1',
-                name: 'Product 2',
-                price: 20
-            })
-        }
-    );
-
-    it('should find a product', async () => {
+    it('should find a customer', async () => {
                 
-        const productRepository = new ProductRepository();
-        const product = new Product('1', 'Product 1', 10);
+        const customerRepository = new CustomerRepository();
+        const customer = new Customer('1', 'John');
+        const address = new Address('street', 123, 'winnipeg', 'r2j2l8');
+        customer.address = address;
+        customer.activate();
+        customer.addRewardPoints(10);   
 
-        await productRepository.create(product);
+        await customerRepository.create(customer);
 
-        const productModel = await ProductModel.findOne({ where: { id: '1' } });
-
-        const foundProduct = await productRepository.find('1');
-
-        expect(productModel.toJSON()).toStrictEqual({ 
-
-            id: foundProduct.id,
-            name: foundProduct.name,
-            price: foundProduct.price
-        })
+        const customerResult = await customerRepository.find(customer.id);
+        
+        expect(customer).toStrictEqual(customerResult)
     });
 
-    it('should find all products', async () => {
+    it('should throw an error when customer is not found', async () => {
+        const customerRepository = new CustomerRepository();
+        expect(async() => {
+            await customerRepository.find('abc');
+        }).rejects.toThrow('Customer not found');
+    });
 
-        const productRepository = new ProductRepository();
-        const product1 = new Product('1', 'Product 1', 10);
-        const product2 = new Product('2', 'Product 2', 20);
-        const product3 = new Product('3', 'Product 3', 30);
 
-        await productRepository.create(product1);
-        await productRepository.create(product2);
-        await productRepository.create(product3);
+    it('should find all customers', async () => {
 
-        const foundProducts = await productRepository.findAll();
+        const customerRepository = new CustomerRepository();
+        const customer = new Customer('1', 'John');
+        const address = new Address('street', 123, 'city', 'zip');
+        customer.address = address;
+        customer.activate();
+        customer.addRewardPoints(10);
 
-        expect(foundProducts.length).toBe(3);
+        await customerRepository.create(customer);
 
-        const products = [product1, product2, product3];
+        const customer2 = new Customer('12', 'John2');
+        const address2 = new Address('street2', 1232, 'citty2', 'zip2');
+        customer2.address = address2;
+        customer2.activate();
+        customer2.addRewardPoints(20);
 
-        expect(foundProducts).toStrictEqual(products);
+        await customerRepository.create(customer2);
+  
+        const customers = await customerRepository.findAll();
+
+        expect(customers).toHaveLength(2);
+        expect(customers).toContainEqual(customer);
+        expect(customers).toContainEqual(customer2);
     });
 });
