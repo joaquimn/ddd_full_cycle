@@ -1,6 +1,5 @@
 import Address from "../../../domain/entity/customer/address";
 import Customer from "../../../domain/entity/customer/customer";
-import Product from "../../../domain/entity/product/product";
 import CustomerRepositoryInterface from "../../../domain/repository/customer-repository.interface";
 import CustomerModel from "../../db/sequelize/model/customer.model";
 
@@ -8,16 +7,25 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
 
     async create(entity: Customer): Promise<void> {
         
+        console.log(entity);
+
+      try {
+
         await CustomerModel.create({
-            id: entity.id,
-            name: entity.name,
-            street: entity.address.street, 
-            number: entity.address.number,
-            zipcode: entity.address.zip,
-            city: entity.address.city,
-            active: entity.isActive(),
-            rewardPoints: entity.rewardPoints,
-        });
+          id: entity.id,
+          name: entity.name,
+          street: entity.address.street, 
+          number: entity.address.number,
+          zipcode: entity.address.zip,
+          city: entity.address.city,
+          active: entity.isActive(),
+          rewardPoints: entity.rewardPoints,
+      });
+
+      } catch (error) {
+
+        console.log(error);
+      }
     }
 
     async update(entity: Customer): Promise<void> {

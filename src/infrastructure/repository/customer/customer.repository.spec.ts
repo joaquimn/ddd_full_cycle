@@ -30,6 +30,7 @@ describe('Customer Repository test', () => {
         const customer = new Customer("123", "Customer 1");
         const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
         customer.address = address;
+        customer.activate();
         await customerRepository.create(customer);
     
         const customerModel = await CustomerModel.findOne({ where: { id: "123" } });
@@ -53,6 +54,7 @@ describe('Customer Repository test', () => {
         const customer = new Customer('1', 'John');
         const address = new Address('street1', 123, '456', 'city1');
         customer.address = address;
+        customer.activate();
         
         await customerRepository.create(customer);
 
