@@ -1,5 +1,4 @@
 import { Sequelize } from "sequelize-typescript";
-
 import OrderRepository from "./order.repository";
 import CustomerModel from "../../db/sequelize/model/customer.model";
 import OrderModel from "../../db/sequelize/model/order.model";
@@ -162,9 +161,6 @@ describe("Order repository test", () => {
         },
       ],
     });
-
-
-
   });
 
   it("Should find an order",async () => {
@@ -187,14 +183,12 @@ describe("Order repository test", () => {
       2
     );
 
-
     const order = new Order("123", customer.id, [orderItem]);
     const orderRepository = new OrderRepository();
     await orderRepository.create(order);
 
     const orderFound = orderRepository.find(order.id);
-
-    let orderModel = await OrderModel.findOne({
+    const orderModel = await OrderModel.findOne({
       where: { id: order.id },
       include: ["items"],
     });
@@ -217,5 +211,57 @@ describe("Order repository test", () => {
 
   });
 
+  it("Should find all orders",async () => {
+    
+    const customerRepository = new CustomerRepository();
+    const customer = new Customer("12", "Customer 1");
+    const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
+    customer.changeAddress(address);
+    await customerRepository.create(customer);
 
+    const productRepository = new ProductRepository();
+    const product = new Product("123", "Product 1", 10);
+    await productRepository.create(product);
+
+    const orderItem = new OrderItem(
+      "1",
+      product.id,
+      product.name,
+      product.price,
+      2
+    );
+
+    const order = new Order("123", customer.id, [orderItem]);
+    const orderRepository = new OrderRepository();
+    await orderRepository.create(order);
+   
+    const customer2 = new Customer("13", "Customer 3");
+    const address2 = new Address("Street 2", 2, "Zipcode 2", "City 2");
+    customer2.changeAddress(address2);
+    await customerRepository.create(customer2);
+
+    const product2 = new Product("456", "Product 2", 20);
+    await productRepository.create(product2);
+
+    const orderItem2 = new OrderItem(
+      "2",
+      product2.id,
+      product2.name,
+      product2.price,
+      2
+    );
+
+    const order2 = new Order("456", customer2.id, [orderItem2]);
+    await orderRepository.create(order2);
+
+    const orderModel = await OrderModel.findAll({
+      include: ["items"]
+    });
+
+    const orders = await orderRepository.findAll();
+
+    expect(orders).toHaveLength(2);
+    expect(orders).toContainEqual(order);
+    expect(orders).toContainEqual(order2);
+  });
 });
