@@ -8,24 +8,26 @@ import {
   HasMany
 } from "sequelize-typescript";
 import OrderItemModel from "./order-item.model";
+import CustomerModel from "./customer.model";
 
 @Table({
-  tableName: "customers",
+  tableName: "orders",
   timestamps: false,
 })
+
 export default class OrderModel extends Model {
   @PrimaryKey
   @Column
   declare id: string;
 
-  @ForeignKey(() => OrderModel)
+  @ForeignKey(() => CustomerModel)
   @Column({ allowNull: false })
   declare customer_id: string;
 
-  @BelongsTo (() => OrderModel)
-  declare customer: OrderModel;
+  @BelongsTo(() => CustomerModel)
+  declare customer: CustomerModel;
 
-  @HasMany (() => OrderItemModel)
+  @HasMany(() => OrderItemModel)
   declare items: OrderItemModel[];
 
   @Column({ allowNull: false })

@@ -43,17 +43,16 @@ describe("Order repository test", () => {
   });
 
   it("should create a new order", async () => {
+
     const customerRepository = new CustomerRepository();
     const customer = new Customer("123", "Customer 1");
     const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
     customer.changeAddress(address);
     await customerRepository.create(customer);
 
-  /*
     const productRepository = new ProductRepository();
     const product = new Product("123", "Product 1", 10);
     await productRepository.create(product);
-
 
     const orderItem = new OrderItem(
       "1",
@@ -64,9 +63,6 @@ describe("Order repository test", () => {
     );
 
     const order = new Order("123", "123", [orderItem]);
-
-
-    /*
     const orderRepository = new OrderRepository();
     await orderRepository.create(order);
 
@@ -90,6 +86,136 @@ describe("Order repository test", () => {
         },
       ],
     });
-    */
+    
   });
+
+  it("Should update an order", async () => {
+   
+    const customerRepository = new CustomerRepository();
+    const customer = new Customer("12", "Customer 1");
+    const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
+    customer.changeAddress(address);
+    await customerRepository.create(customer);
+
+    const productRepository = new ProductRepository();
+    const product = new Product("123", "Product 1", 10);
+    await productRepository.create(product);
+
+    const orderItem = new OrderItem(
+      "1",
+      product.id,
+      product.name,
+      product.price,
+      2
+    );
+
+    const order = new Order("123", customer.id, [orderItem]);
+    const orderRepository = new OrderRepository();
+    await orderRepository.create(order);
+
+
+    let orderModel = await OrderModel.findOne({
+      where: { id: order.id },
+      include: ["items"],
+    });
+
+
+    const orderItem2 = new OrderItem(
+      "2",
+      product.id,
+      product.name,
+      product.price,
+      2
+    );
+
+   order.items.push(orderItem2);
+   order.updateTotal();
+    
+
+    await orderRepository.update(order);
+
+    const orderFound = await OrderModel.findOne({
+      where: { id: order.id },
+      include: ["items"],
+    });
+
+    expect(orderFound.toJSON()).toStrictEqual({
+      id: order.id,
+      customer_id: order.customerId,
+      total: order.total(),
+      items: [
+        {
+          id: orderItem.id,
+          name: orderItem.name,
+          price: orderItem.price,
+          quantity: orderItem.quantity,
+          order_id: order.id,
+          product_id: orderItem.productId,
+        },
+        {
+          id: orderItem2.id,
+          name: orderItem2.name,
+          price: orderItem2.price,
+          quantity: orderItem2.quantity,
+          order_id: order.id,
+          product_id: orderItem2.productId,
+        },
+      ],
+    });
+
+
+
+  });
+
+  it("Should find an order",async () => {
+    
+    const customerRepository = new CustomerRepository();
+    const customer = new Customer("12", "Customer 1");
+    const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
+    customer.changeAddress(address);
+    await customerRepository.create(customer);
+
+    const productRepository = new ProductRepository();
+    const product = new Product("123", "Product 1", 10);
+    await productRepository.create(product);
+
+    const orderItem = new OrderItem(
+      "1",
+      product.id,
+      product.name,
+      product.price,
+      2
+    );
+
+
+    const order = new Order("123", customer.id, [orderItem]);
+    const orderRepository = new OrderRepository();
+    await orderRepository.create(order);
+
+    const orderFound = orderRepository.find(order.id);
+
+    let orderModel = await OrderModel.findOne({
+      where: { id: order.id },
+      include: ["items"],
+    });
+
+    expect(orderModel.toJSON()).toStrictEqual({
+      id: order.id,
+      customer_id: order.customerId,
+      total: order.total(),
+      items: [
+        {
+          id: orderItem.id,
+          name: orderItem.name,
+          price: orderItem.price,
+          quantity: orderItem.quantity,
+          order_id: order.id,
+          product_id: orderItem.productId,
+        }
+      ],
+    });
+
+  });
+
+
 });

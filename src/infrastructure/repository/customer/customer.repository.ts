@@ -7,8 +7,6 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
 
     async create(entity: Customer): Promise<void> {
         
-        console.log(entity);
-
       try {
 
         await CustomerModel.create({
@@ -23,8 +21,7 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
       });
 
       } catch (error) {
-
-        console.log(error);
+        //console.log(error);
       }
     }
 
