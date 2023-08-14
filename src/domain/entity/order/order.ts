@@ -27,7 +27,6 @@ export default class Order {
 
         if(this._customerId.length === 0){
             throw new Error("Customer id is required to create an order");
-        
         }
 
         if(this._items.length === 0){

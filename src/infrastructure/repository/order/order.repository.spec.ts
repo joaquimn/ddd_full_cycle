@@ -85,7 +85,6 @@ describe("Order repository test", () => {
         },
       ],
     });
-    
   });
 
   it("Should update an order", async () => {
@@ -129,7 +128,6 @@ describe("Order repository test", () => {
 
    order.items.push(orderItem2);
    order.updateTotal();
-    
 
     await orderRepository.update(order);
 
