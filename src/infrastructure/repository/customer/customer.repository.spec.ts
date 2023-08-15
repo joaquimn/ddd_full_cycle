@@ -3,6 +3,8 @@ import CustomerModel from "../../db/sequelize/model/customer.model";
 import CustomerRepository from "./customer.repository";
 import Customer from "../../../domain/entity/customer/customer";
 import Address from "../../../domain/entity/customer/address";
+import SendConsoleLog1 from "../../../domain/event/costumer/handler/send-console-log1.handler";
+import SendConsoleLog2 from "../../../domain/event/costumer/handler/send-console-log2.handler";
 
 describe('Customer Repository test', () => {
 
@@ -31,6 +33,7 @@ describe('Customer Repository test', () => {
         const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
         customer.address = address;
         customer.activate();
+
         await customerRepository.create(customer);
     
         const customerModel = await CustomerModel.findOne({ where: { id: "123" } });
@@ -47,12 +50,12 @@ describe('Customer Repository test', () => {
         });
       });
 
-    it('should create a customer', async () => {
+    it('should update a customer', async () => {
 
         const customerRepository = new CustomerRepository();
 
         const customer = new Customer('1', 'John');
-        const address = new Address('street1', 123, '456', 'city1');
+        const address = new Address('street1', 123, 'city1', '456');
         customer.address = address;
         customer.activate();
         
@@ -75,6 +78,37 @@ describe('Customer Repository test', () => {
             city: customer.address.city
         })
     });
+
+
+    it('should update the customer address', async () => {
+
+        const customerRepository = new CustomerRepository();
+
+        const customer = new Customer('1', 'John');
+        const address = new Address('street1', 123, 'city1', '456');
+        customer.address = address;
+        customer.activate();
+        
+        await customerRepository.create(customer);
+
+        const newAddress = new Address('street2', 456, 'citys', '789');
+        customer.changeAddress(newAddress);
+           
+        await customerRepository.update(customer);
+
+        const updatedCustomer = await CustomerModel.findOne({ where: { id: '1' } });
+        expect(updatedCustomer.toJSON()).toStrictEqual ({ 
+
+            id: '1',
+            name: customer.name,
+            active: customer.isActive(),
+            rewardPoints: customer.rewardPoints,
+            street: newAddress.street,
+            number: newAddress.number,
+            zipcode: newAddress.zip,
+            city: newAddress.city
+        })
+    });    
 
     it('should find a customer', async () => {
                 
@@ -125,4 +159,7 @@ describe('Customer Repository test', () => {
         expect(customers).toContainEqual(customer);
         expect(customers).toContainEqual(customer2);
     });
+
+    
+
 });

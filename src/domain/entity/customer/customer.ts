@@ -13,6 +13,9 @@ Infrastructure - how the business needs are implemented
             customer.ts - data persistence
 */
 
+import CostumerCreatedEvent from "../../event/costumer/costumer-created-events";
+import ChangeAddressEvent from "../../event/costumer/handler/change-address-event";
+import EventDispatcher from "../../event/shared/event-dispatcher";
 import Address from "./address";
 
 export default class Customer {
